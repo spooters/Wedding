@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Marcus &amp; Hayley's Wedding Planner</title>
+<style>
+  :root{
+    --ink:#2E2B24;
+    --ink-soft:#7A7160;
+    --paper:#FBF6EC;
+    --paper-raised:#FFFFFF;
+    --blue-deep:#4A6FA0;
+    --blue-mid:#7E98C4;
+    --blue-soft:#C7D5EA;
+    --sage:#889A78;
+    --sage-soft:#C7D2B9;
+    --cream-bloom:#F1EBD8;
+    --line:#E1D5B8;
+    --line-blue:#DAE2ED;
+    --radius:16px;
+    --shadow: 0 1px 2px rgba(46,43,36,0.05), 0 6px 20px rgba(46,43,36,0.06);
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+
+  html,body{
+    margin:0; padding:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{
+    padding: calc(env(safe-area-inset-top) + 16px) 14px calc(env(safe-area-inset-bottom) + 40px);
+  }
+
+  .frame{
+    max-width: 640px;
+    margin: 0 auto;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 22px 18px 30px;
+    position: relative;
+  }
+  .frame::before{
+    content:'';
+    position:absolute;
+    inset: 6px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    pointer-events:none;
+  }
+
+  /* ---- header ---- */
+  .header{ text-align:center; margin-bottom: 6px; position:relative; }
+
+  .sprig{ display:flex; justify-content:center; margin-bottom: 6px; }
+  .sprig svg{ width: 220px; height: auto; }
+
+  .script-title{
+    font-family: "Snell Roundhand", "Apple Chancery", "Bradley Hand", cursive;
+    font-weight: 400;
+    color: var(--blue-deep);
+    font-size: 42px;
+    line-height: 1.05;
+    margin: 4px 0 2px;
+  }
+
+  .eyebrow{
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+
+  .flourish{
+    display:flex; align-items:center; justify-content:center; gap: 10px;
+    margin: 6px 0 14px; color: var(--blue-soft);
+  }
+  .flourish .rule{ height:1px; width: 60px; background: var(--line); }
+  .flourish svg{ width:22px; height:14px; }
+
+  .occasion{ font-family: Georgia, serif; font-size: 15px; color: var(--ink-soft); margin-bottom: 2px; }
+  .occasion b{ color: var(--ink); font-weight:600; }
+
+  /* ---- progress ring ---- */
+  .progress-wrap{ display:flex; justify-content:center; margin: 18px 0 20px; }
+  .ring-holder{ position:relative; width:148px; height:148px; }
+  .ring-holder svg{ width:100%; height:100%; transform: rotate(-90deg); }
+  .ring-bg{ fill:none; stroke:var(--line-blue); stroke-width:9; }
+  .ring-fg{
+    fill:none; stroke:var(--blue-deep); stroke-width:9;
+    stroke-linecap: round; transition: stroke-dashoffset 0.5s ease;
+  }
+  .ring-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .ring-frac{ font-family: Georgia, serif; font-size: 25px; color: var(--blue-deep); line-height:1; }
+  .ring-label{ font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin-top:4px; }
+
+  /* ---- categories ---- */
+  .category{ margin-bottom: 20px; }
+  .category-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    border-bottom: 1px solid var(--line-blue);
+    padding-bottom: 6px; margin-bottom: 8px;
+  }
+  .category-title{ font-family: Georgia, serif; font-style: italic; font-size: 17px; color: var(--sage); letter-spacing: 0.01em; }
+  .category-count{ font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+
+  .item{
+    display:flex; align-items:flex-start; gap: 12px;
+    padding: 11px 4px; border-radius: 10px; cursor:pointer; user-select:none;
+  }
+  .item:active{ background: var(--cream-bloom); }
+
+  .check{
+    flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%;
+    border: 2px solid var(--blue-mid); margin-top: 1px;
+    display:flex; align-items:center; justify-content:center;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .item.checked .check{ background: var(--blue-deep); border-color: var(--blue-deep); }
+  .check svg{ width:13px; height:13px; opacity:0; transform: scale(0.6); transition: opacity 0.15s ease, transform 0.15s ease; }
+  .item.checked .check svg{ opacity:1; transform:scale(1); }
+
+  .item-text{ font-size: 16px; line-height: 1.35; padding-top: 2px; }
+  .item.checked .item-text{ color: var(--ink-soft); text-decoration: line-through; text-decoration-color: var(--ink-soft); }
+
+  .item-del{
+    margin-left:auto; flex:0 0 auto; color: var(--ink-soft); font-size: 18px;
+    padding: 2px 8px; border-radius: 8px; background:transparent; border:none;
+  }
+  .item-del:active{ background: var(--cream-bloom); }
+
+  .empty-state{
+    text-align:center; color: var(--ink-soft); font-size: 14px; padding: 30px 10px;
+    border: 1px dashed var(--line-blue); border-radius: var(--radius);
+  }
+
+  /* ---- quick add ---- */
+  .quick-add{
+    display:flex; gap:8px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line-blue);
+    border-radius: 999px;
+    padding: 6px 6px 6px 16px;
+    box-shadow: var(--shadow);
+    margin: 24px 0 18px;
+  }
+  .quick-add input[type="text"]{
+    flex:1; border:none; background:transparent; font-size: 16px; color: var(--ink);
+    outline:none; min-width:0;
+  }
+  .quick-add input::placeholder{ color:#b4ab97; }
+  .quick-add button{
+    flex:0 0 auto; border:none; background: var(--blue-deep); color: #fff;
+    font-size: 20px; line-height:1; width: 38px; height:38px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .quick-add button:active{ background: #3B5A85; }
+  .quick-add-cat{ border:none; background:transparent; color: var(--ink-soft); font-size: 13px; max-width: 90px; }
+
+  /* ---- footer landscape ---- */
+  .landscape{ margin: 30px 0 6px; opacity: 0.95; }
+  .landscape svg{ width:100%; height:auto; display:block; }
+  .footer-note{
+    text-align:center;
+    font-family: "Snell Roundhand", "Apple Chancery", cursive;
+    color: var(--blue-mid);
+    font-size: 19px;
+    margin: 6px 0 4px;
+  }
+
+  /* ---- manage panel ---- */
+  details.manage{ margin-top: 26px; border-top: 1px solid var(--line); padding-top: 16px; }
+  details.manage summary{
+    font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--sage); cursor:pointer; list-style: none;
+  }
+  details.manage summary::-webkit-details-marker{ display:none; }
+  details.manage summary::before{ content: "✦ "; }
+
+  .manage-body{ padding-top: 14px; display:flex; flex-direction:column; gap: 12px; }
+  .manage-row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .btn{
+    flex:1; min-width: 140px; padding: 12px 14px; border-radius: 12px;
+    border: 1px solid var(--line-blue); background: var(--paper-raised);
+    color: var(--ink); font-size: 14px; text-align:center;
+  }
+  .btn:active{ background: var(--cream-bloom); }
+  .btn.primary{ background: var(--blue-deep); color:#fff; border-color: var(--blue-deep); }
+  .btn.primary:active{ background: #3B5A85; }
+  .btn.warn{ color:#8a3b3b; }
+
+  .hint{ font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+
+  textarea.md-edit{
+    width:100%; min-height: 180px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; padding: 12px; border-radius: 12px;
+    border: 1px solid var(--line-blue); background: var(--paper-raised); color: var(--ink);
+  }
+
+  .status-msg{ font-size: 12.5px; color: var(--sage); min-height: 16px; }
+  input[type="file"]{ display:none; }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <div class="header">
+    <div class="sprig" aria-hidden="true">
+      <svg viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg">
+        <g fill="var(--sage-soft)" opacity="0.9">
+          <ellipse cx="34" cy="40" rx="13" ry="7" transform="rotate(-25 34 40)"/>
+          <ellipse cx="20" cy="30" rx="11" ry="6" transform="rotate(-45 20 30)"/>
+          <ellipse cx="186" cy="40" rx="13" ry="7" transform="rotate(25 186 40)"/>
+          <ellipse cx="200" cy="30" rx="11" ry="6" transform="rotate(45 200 30)"/>
+          <ellipse cx="110" cy="15" rx="10" ry="5" transform="rotate(0 110 15)"/>
+        </g>
+        <g fill="var(--blue-soft)">
+          <circle cx="52" cy="34" r="6"/><circle cx="62" cy="30" r="6.5"/><circle cx="72" cy="35" r="6"/>
+          <circle cx="57" cy="24" r="6"/><circle cx="67" cy="24" r="6"/><circle cx="62" cy="40" r="6"/>
+        </g>
+        <g fill="var(--blue-mid)" opacity="0.75">
+          <circle cx="62" cy="30" r="2.4"/><circle cx="52" cy="34" r="2"/><circle cx="72" cy="35" r="2"/>
+          <circle cx="57" cy="24" r="2"/><circle cx="67" cy="24" r="2"/>
+        </g>
+        <g fill="var(--cream-bloom)">
+          <circle cx="105" cy="30" r="7"/><circle cx="117" cy="27" r="7.5"/><circle cx="129" cy="31" r="7"/>
+          <circle cx="111" cy="20" r="7"/><circle cx="123" cy="20" r="7"/><circle cx="117" cy="38" r="7"/>
+        </g>
+        <g fill="#DCCFA6" opacity="0.6">
+          <circle cx="117" cy="27" r="2.6"/><circle cx="105" cy="30" r="2.2"/><circle cx="129" cy="31" r="2.2"/>
+        </g>
+        <g fill="var(--blue-soft)">
+          <circle cx="150" cy="35" r="6"/><circle cx="160" cy="30" r="6.5"/><circle cx="170" cy="34" r="6"/>
+          <circle cx="155" cy="24" r="6"/><circle cx="165" cy="24" r="6"/><circle cx="160" cy="40" r="6"/>
+        </g>
+        <g fill="var(--blue-mid)" opacity="0.75">
+          <circle cx="160" cy="30" r="2.4"/><circle cx="150" cy="35" r="2"/><circle cx="170" cy="34" r="2"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="script-title">Marcus &amp; Hayley</div>
+    <div class="eyebrow">Wedding Planner</div>
+
+    <div class="flourish" aria-hidden="true">
+      <div class="rule"></div>
+      <svg viewBox="0 0 24 14"><path d="M2 7 C 8 -2, 10 14, 12 7 C 14 0, 16 14, 22 7" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>
+      <div class="rule"></div>
+    </div>
+
+    <div class="occasion"><b>Saturday 23rd January 2027</b> · Eastwood Park</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="ring-holder">
+      <svg viewBox="0 0 150 150">
+        <circle class="ring-bg" cx="75" cy="75" r="65"></circle>
+        <circle id="ringFg" class="ring-fg" cx="75" cy="75" r="65"></circle>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-frac" id="ringFrac">0/0</div>
+        <div class="ring-label">complete</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quick-add">
+    <select id="quickAddCat" class="quick-add-cat" aria-label="Category"></select>
+    <input type="text" id="quickAddText" placeholder="Add a task…" maxlength="140">
+    <button id="quickAddBtn" aria-label="Add task">+</button>
+  </div>
+
+  <div id="list"></div>
+
+  <div class="landscape" aria-hidden="true">
+    <svg viewBox="0 0 600 110" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,90 C 90,60 150,95 230,70 C 300,50 340,80 420,60 C 480,45 540,65 600,55 L600,110 L0,110 Z" fill="var(--sage-soft)" opacity="0.55"/>
+      <path d="M0,100 C 70,80 140,105 210,90 C 280,75 330,100 400,88 C 470,78 520,95 600,85 L600,110 L0,110 Z" fill="var(--sage)" opacity="0.45"/>
+      <rect x="66" y="46" width="10" height="26" fill="var(--ink-soft)" opacity="0.55"/>
+      <rect x="63" y="40" width="16" height="8" fill="var(--ink-soft)" opacity="0.55"/>
+    </svg>
+    <div class="footer-note">however long it takes</div>
+  </div>
+
+  <details class="manage" id="manageDetails">
+    <summary>Manage your list</summary>
+    <div class="manage-body">
+
+      <div class="hint">
+        Your list lives in this file's storage on this device, so it stays put
+        between visits. To edit it from a Markdown file in iCloud Drive instead,
+        load one below — headings (<code>##</code>) become sections, and lines
+        like <code>- [ ] Task</code> become tasks.
+      </div>
+
+      <div class="manage-row">
+        <button class="btn" id="loadFileBtn">Load .md file…</button>
+        <button class="btn" id="exportBtn">Save list as .md</button>
+      </div>
+      <input type="file" id="fileInput" accept=".md,.markdown,.txt,text/markdown,text/plain,*/*">
+      <div class="status-msg" id="statusMsg"></div>
+
+      <div class="hint">Or edit the raw list directly:</div>
+      <textarea class="md-edit" id="mdEdit" spellcheck="false"></textarea>
+      <div class="manage-row">
+        <button class="btn primary" id="applyMdBtn">Apply changes above</button>
+      </div>
+
+      <div class="manage-row">
+        <button class="btn" id="resetExampleBtn">Reload example list</button>
+        <button class="btn warn" id="clearAllBtn">Clear everything</button>
+      </div>
+    </div>
+  </details>
+
+</div>
+<script>
+(function(){
+  'use strict';
+
+  var STORAGE_KEY = 'wedding-planner-state-v1';
+
+  var EXAMPLE_MD = [
+"# Marcus & Hayley's Wedding Planner","",
+"## 12+ Months Before",
+"- [x] Set the budget",
+"- [x] Draft the guest list",
+"- [ ] Book the venue",
+"- [ ] Choose the wedding party",
+"- [ ] Book photographer & videographer","",
+"## 6-9 Months Before",
+"- [ ] Book caterer",
+"- [ ] Order the dress & suit",
+"- [ ] Book band or DJ",
+"- [ ] Book florist",
+"- [ ] Send save-the-dates","",
+"## 3-4 Months Before",
+"- [ ] Send invitations",
+"- [ ] Arrange transport",
+"- [ ] Book hair & make-up trial",
+"- [ ] Order wedding rings",
+"- [ ] Plan the honeymoon","",
+"## 1 Month Before",
+"- [ ] Confirm final numbers with venue & caterer",
+"- [ ] Write vows and speeches",
+"- [ ] Final dress/suit fitting",
+"- [ ] Confirm all suppliers","",
+"## Week Of",
+"- [ ] Pack for the honeymoon",
+"- [ ] Give rings to best man/maid of honour",
+"- [ ] Delegate a point-of-contact for the day",
+"- [ ] Rehearsal & rehearsal dinner"
+  ].join("\n");
+
+  var uid = 0;
+  function nextId(){ uid += 1; return 'i' + Date.now().toString(36) + uid; }
+
+  function parseMarkdown(text){
+    var lines = text.split(/\r?\n/);
+    var categories = [];
+    var current = null;
+
+    function ensureCurrent(){
+      if(!current){
+        current = { id: nextId(), name: 'General', items: [] };
+        categories.push(current);
+      }
+      return current;
+    }
+
+    for(var i=0;i<lines.length;i++){
+      var line = lines[i];
+
+      var h = line.match(/^\s*#{1,3}\s+(.*\S)\s*$/);
+      if(h){
+        if(line.match(/^\s*#\s/) && categories.length === 0 && !current){
+          continue;
+        }
+        current = { id: nextId(), name: h[1], items: [] };
+        categories.push(current);
+        continue;
+      }
+
+      var box = line.match(/^\s*[-*]\s*\[( |x|X)\]\s*(.*\S)\s*$/);
+      if(box){
+        ensureCurrent().items.push({
+          id: nextId(),
+          text: box[2],
+          checked: box[1].toLowerCase() === 'x'
+        });
+        continue;
+      }
+
+      var plain = line.match(/^\s*[-*]\s+(.*\S)\s*$/);
+      if(plain){
+        ensureCurrent().items.push({ id: nextId(), text: plain[1], checked: false });
+        continue;
+      }
+    }
+
+    categories = categories.filter(function(c){ return c.items.length > 0; });
+    return categories;
+  }
+
+  function serializeMarkdown(categories){
+    var out = ["# Marcus & Hayley's Wedding Planner", ""];
+    categories.forEach(function(cat){
+      out.push('## ' + cat.name);
+      cat.items.forEach(function(it){
+        out.push('- [' + (it.checked ? 'x' : ' ') + '] ' + it.text);
+      });
+      out.push('');
+    });
+    return out.join('\n').replace(/\n+$/,'\n');
+  }
+
+  var state = { categories: [] };
+
+  function save(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }catch(e){}
+  }
+
+  function load(){
+    var raw;
+    try{ raw = localStorage.getItem(STORAGE_KEY); }catch(e){ raw = null; }
+    if(raw){
+      try{
+        var parsed = JSON.parse(raw);
+        if(parsed && Array.isArray(parsed.categories)){
+          state = parsed;
+          return;
+        }
+      }catch(e){}
+    }
+    state = { categories: parseMarkdown(EXAMPLE_MD) };
+    save();
+  }
+
+  var listEl = document.getElementById('list');
+  var ringFg = document.getElementById('ringFg');
+  var ringFrac = document.getElementById('ringFrac');
+  var quickAddCat = document.getElementById('quickAddCat');
+  var CIRC = 2 * Math.PI * 65;
+  ringFg.style.strokeDasharray = CIRC.toFixed(1);
+
+  function checkIcon(){
+    return '<svg viewBox="0 0 16 16"><path d="M2 8.5 L6 12.5 L14 3.5" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+
+  function render(){
+    var total = 0, done = 0;
+    state.categories.forEach(function(c){
+      c.items.forEach(function(it){ total++; if(it.checked) done++; });
+    });
+    var pct = total ? done/total : 0;
+    var offset = CIRC * (1 - pct);
+    ringFg.style.strokeDashoffset = offset.toFixed(1);
+    ringFrac.textContent = done + '/' + total;
+
+    var prevSel = quickAddCat.value;
+    quickAddCat.innerHTML = '';
+    state.categories.forEach(function(c){
+      var opt = document.createElement('option');
+      opt.value = c.id; opt.textContent = c.name;
+      quickAddCat.appendChild(opt);
+    });
+    var optNew = document.createElement('option');
+    optNew.value = '__new__'; optNew.textContent = '+ New section';
+    quickAddCat.appendChild(optNew);
+    if(prevSel && Array.prototype.some.call(quickAddCat.options, function(o){return o.value===prevSel;})){
+      quickAddCat.value = prevSel;
+    }
+
+    listEl.innerHTML = '';
+    if(state.categories.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'No tasks yet — add one below, or load a list from a markdown file.';
+      listEl.appendChild(empty);
+      return;
+    }
+
+    state.categories.forEach(function(cat){
+      var catDone = cat.items.filter(function(i){return i.checked;}).length;
+
+      var wrap = document.createElement('div');
+      wrap.className = 'category';
+
+      var head = document.createElement('div');
+      head.className = 'category-head';
+      head.innerHTML = '<div class="category-title"></div><div class="category-count"></div>';
+      head.querySelector('.category-title').textContent = cat.name;
+      head.querySelector('.category-count').textContent = catDone + '/' + cat.items.length;
+      wrap.appendChild(head);
+
+      cat.items.forEach(function(it){
+        var row = document.createElement('div');
+        row.className = 'item' + (it.checked ? ' checked' : '');
+        row.innerHTML =
+          '<div class="check">' + checkIcon() + '</div>' +
+          '<div class="item-text"></div>' +
+          '<button class="item-del" aria-label="Delete task">×</button>';
+        row.querySelector('.item-text').textContent = it.text;
+
+        row.addEventListener('click', function(e){
+          if(e.target.closest('.item-del')) return;
+          it.checked = !it.checked;
+          save();
+          render();
+        });
+        row.querySelector('.item-del').addEventListener('click', function(e){
+          e.stopPropagation();
+          cat.items = cat.items.filter(function(x){ return x.id !== it.id; });
+          state.categories = state.categories.filter(function(c){ return c.items.length > 0; });
+          save();
+          render();
+        });
+
+        wrap.appendChild(row);
+      });
+
+      listEl.appendChild(wrap);
+    });
+  }
+
+  document.getElementById('quickAddBtn').addEventListener('click', addFromQuickBar);
+  document.getElementById('quickAddText').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') addFromQuickBar();
+  });
+
+  function addFromQuickBar(){
+    var textInput = document.getElementById('quickAddText');
+    var text = textInput.value.trim();
+    if(!text) return;
+
+    var catId = quickAddCat.value;
+    var cat;
+    if(catId === '__new__' || !catId){
+      var name = prompt('Name this new section:', 'New section');
+      if(name === null) return;
+      name = name.trim() || 'New section';
+      cat = { id: nextId(), name: name, items: [] };
+      state.categories.push(cat);
+    } else {
+      cat = state.categories.filter(function(c){ return c.id === catId; })[0];
+      if(!cat){
+        cat = { id: nextId(), name: 'General', items: [] };
+        state.categories.push(cat);
+      }
+    }
+
+    cat.items.push({ id: nextId(), text: text, checked: false });
+    textInput.value = '';
+    save();
+    render();
+  }
+
+  var statusMsg = document.getElementById('statusMsg');
+  function flashStatus(msg){
+    statusMsg.textContent = msg;
+    setTimeout(function(){ statusMsg.textContent = ''; }, 3500);
+  }
+
+  document.getElementById('loadFileBtn').addEventListener('click', function(){
+    document.getElementById('fileInput').click();
+  });
+
+  document.getElementById('fileInput').addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      state = { categories: parseMarkdown(String(reader.result)) };
+      save();
+      render();
+      flashStatus('Loaded "' + file.name + '".');
+    };
+    reader.onerror = function(){
+      flashStatus('Could not read that file.');
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', function(){
+    var md = serializeMarkdown(state.categories);
+    var blob = new Blob([md], {type:'text/markdown'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'wedding-checklist.md';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    flashStatus('Saved. Choose a location (e.g. iCloud Drive) in the share sheet.');
+  });
+
+  var mdEdit = document.getElementById('mdEdit');
+  document.getElementById('manageDetails').addEventListener('toggle', function(e){
+    if(e.target.open){
+      mdEdit.value = serializeMarkdown(state.categories);
+    }
+  });
+
+  document.getElementById('applyMdBtn').addEventListener('click', function(){
+    state = { categories: parseMarkdown(mdEdit.value) };
+    save();
+    render();
+    flashStatus('List updated.');
+  });
+
+  document.getElementById('resetExampleBtn').addEventListener('click', function(){
+    if(!confirm('Replace your current list with the example list?')) return;
+    state = { categories: parseMarkdown(EXAMPLE_MD) };
+    save();
+    render();
+    mdEdit.value = serializeMarkdown(state.categories);
+    flashStatus('Example list loaded.');
+  });
+
+  document.getElementById('clearAllBtn').addEventListener('click', function(){
+    if(!confirm('This clears every task. Continue?')) return;
+    state = { categories: [] };
+    save();
+    render();
+    mdEdit.value = '';
+    flashStatus('Cleared.');
+  });
+
+  load();
+  render();
+})();
+</script>
+</body>
+</html>
